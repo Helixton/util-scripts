@@ -57,16 +57,19 @@ def main():
     parser = argparse.ArgumentParser()
 
     parser.add_argument("-b", "--basedirectory", help="", default=Path(os.getcwd()), type=Path, required=False)
+    parser.add_argument("-c", "--cleanup", help="", default=False, required=False, action="store_true")
+    parser.add_argument("-w", "--write", help="", default=False, required=False, action="store_true")
     parser.add_argument("-a", "--amount", help="", default=1, type=int, required=False)
     parser.add_argument("-f", "--filesize", help="", default=1, type=int, required=False)
-    parser.add_argument("-c", "--cleanup", help="", default=False, required=False, action="store_true")
 
     args = parser.parse_args()
 
     base_directory = args.basedirectory
+    is_cleanup = args.cleanup
+    is_write = args.write
     amount = args.amount
     file_size = args.filesize
-    is_cleanup = args.cleanup
+    
 
     if not base_directory.is_dir():
         raise Exception("error: path does not exists")
@@ -75,16 +78,17 @@ def main():
         print("* cleaning up ...")
         delete_existing_folders_in(base_directory, starting_with="tmp_")
 
-    target_directory = base_directory / str("tmp_" + str(datetime.now().strftime("%y%m%d_%H%M%S")))
+    if is_write:
+        target_directory = base_directory / str("tmp_" + str(datetime.now().strftime("%y%m%d_%H%M%S")))
 
-    if not target_directory.is_dir():
-        target_directory.mkdir()
+        if not target_directory.is_dir():
+            target_directory.mkdir()
 
-    print("* writing to " + str(target_directory))
+        print("* writing to " + str(target_directory))
 
-    write_some_files_to(target_directory, filetype="raw", amount = amount, size = file_size)
+        write_some_files_to(target_directory, filetype="raw", amount = amount, size = file_size)
 
-    print("* done!")
+        print("* done!")
 
 if __name__ == "__main__":
     main()
